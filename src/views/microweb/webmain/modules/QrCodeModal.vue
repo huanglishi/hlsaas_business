@@ -213,7 +213,6 @@
   import uploadimg from '/@/components/webEditor/uploadImg/index.vue' //图片上传
   import { defineComponent ,ref,unref,reactive,toRefs,nextTick} from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
-  import { GetWebLink } from '/@/utils/imgurl';
   //复制
   import { useCopyToClipboard } from '/@/hooks/web/useCopyToClipboard';
   //提示
@@ -224,6 +223,7 @@
   import { ElColorPicker,ElConfigProvider ,ElInput,ElSelect,ElOption,ElSlider } from 'element-plus'
   //APi
   import { addQrTpl,getQrTpl,delQrTpl } from '/@/api/microweb/webmain';
+  import { useUserStore } from '/@/store/modules/user';
   export default defineComponent({
     name:"QrCodeModal",
     components: { BasicModal,QrCode,uploadimg,
@@ -231,6 +231,9 @@
     ElColorPicker,ElConfigProvider ,ElInput,ElSelect,ElOption,ElSlider },
     emits: ['upcateData'],
     setup(_, { emit }) {
+      //用户信息
+      const userStore = useUserStore();
+      const tplpreviewurl = ref(userStore.getUserInfo?.tplpreviewurl || '');
       const datas = reactive({
           qrSeteData:{
             url:"",
@@ -267,11 +270,14 @@
         qrcodetitle.value=data.title
          datas.qrSeteData.name=data.title
          setModalProps({ title: `二维码编辑：${data.title}` });
-          qrURl.value = GetWebLink(data.homeid)
-          datas.qrSeteData.url = GetWebLink(data.homeid)
+          qrURl.value = GetWebLink(data.webid)
+          datas.qrSeteData.url = GetWebLink(data.webid)
         //  console.log('处理打开', qrURl.value);
       }
-  
+      //合成网站地址
+      function GetWebLink(webid){
+         return unref(tplpreviewurl)+"?id="+webid
+      }
       //监听开关
       function handleVisibleChange(v) {
         console.log('监听开关', v);
